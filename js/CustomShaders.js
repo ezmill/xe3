@@ -414,14 +414,14 @@ var alphaShader =  {
 
         "void main() {",
       
-        "    float avg = dot(texture2D(texture, vUv).rgb, vec3(1.0))/3.0;",
-        // "    if(avg > 0.5){",
-        // "      gl_FragColor = vec4(texture2D(texture, vUv).rgb, texture2D(texture, vUv).a);",
-        // "    }",
-        // "    else {",
-        // "      discard;",
-        "      gl_FragColor = vec4(texture2D(texture, vUv).rgb, avg);",
-        // "    }",
+        // "    float avg = dot(texture2D(texture, vUv).r, 1.0)/3.0;",
+        "    if(texture2D(texture, vUv).r > 0.5){",
+        "      gl_FragColor = vec4(texture2D(texture, vUv).rgb, texture2D(texture, vUv).a);",
+        "    }",
+        "    else {",
+        "      discard;",
+        // "      gl_FragColor = vec4(texture2D(texture, vUv).rgb, avg);",
+        "    }",
         "    ",
 		"}"
 	].join("\n")

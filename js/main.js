@@ -115,9 +115,9 @@ function fbInit(){
     fbTexture = new THREE.Texture(canv);
     // fbTexture = new THREE.Texture(renderer.domElement);
     
-    // fbShaders = [blurShader, reposShader, diffShader, colorShader, sharpenShader];
+    fbShaders = [blurShader, reposShader, diffShader, colorShader, sharpenShader];
     // fbShaders = [blurShader, sharpenShader, diffShader, reposShader, sharpenShader];
-    fbShaders = [blurShader, reposShader, diffShader, reposShader, sharpenShader];
+    // fbShaders = [blurShader, reposShader, diffShader, reposShader, sharpenShader];
 
     fbMaterial = new FeedbackMaterial(fbRenderer, fbScene, fbCamera, fbTexture, fbShaders);
     
