@@ -12,6 +12,7 @@ var gradient, tex;
 var meshes = [];
 var obj;
 var counter = 0;
+var rtt;
 
 init();
 animate();
@@ -19,10 +20,15 @@ animate();
 function init() {
         
     camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100000);
-    // camera = new THREE.OrthographicCamera(window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.01, 100000);
     camera.position.set(0,0, 10);
 
-    controls = new THREE.OrbitControls(camera);
+    camera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100000);
+    camera2.position.set(0,40, 10);
+
+    rtt = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
+    rtt.minFilter = rtt.magFilter = THREE.NearestFilter;
+
+    // controls = new THREE.OrbitControls(camera);
     
     scene = new THREE.Scene();
 
@@ -44,6 +50,14 @@ function init() {
             // gMesh.mesh.position.x = j*100;
             meshes.push(gMesh);
         }
+
+        for(var i = 0; i < 5; i++){
+            var gMesh = new GradientMesh(scene, window.innerWidth, window.innerHeight);
+            gMesh.init(i);
+            gMesh.mesh.position.y = 40;
+            // gMesh.mesh.position.x = j*100;
+            meshes.push(gMesh);
+        }
     // }
 
 
@@ -62,6 +76,11 @@ function init() {
     composer.addPass( effectVBlur );
     camera.rotation.set(Math.PI/100, Math.PI/100, 0);
 
+    composer2 = new THREE.EffectComposer( renderer, rtt );
+    composer2.addPass( new THREE.RenderPass( scene, camera2 ) );
+    composer2.addPass( effectHBlur );
+    composer2.addPass( effectVBlur );
+
     fbInit();
 
 }
@@ -72,7 +91,7 @@ function animate(){
 function draw(){
     // camera.setLens(10)
     time+=0.01;
-
+    // rtt.needsUpdate = true;
     // for(var j = 0; j<4; j++){
         // for(var k = 0; k<4; k++){
             for(var i = 0; i < meshes.length; i++){
@@ -84,11 +103,12 @@ function draw(){
             }
         // }
     // }
-
-    composer.render();
-    // clearColor = new THREE.Color().setHSL((Math.sin(Date.now()*0.001)*0.5 + 0.5), 1.0, 0.5 );
-    // renderer.setClearColor(clearColor, 1.0)
+    // renderer.render(scene, camera2, rtt);
     // renderer.render(scene, camera);
+
+    composer2.render();
+    composer.render();
+
 
     fbDraw();
 }
@@ -97,7 +117,14 @@ function fbInit(){
     fbCamera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -10000, 10000 );
     fbCamera.position.set(0,0,0);
 
+    fbCamera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100000);
+    fbCamera2.position.z = 750;
+
+    controls = new THREE.OrbitControls(fbCamera2);
+
+
     fbRenderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true});
+    fbRenderer.setClearColor(0xffffff);
     fbRenderer.setSize(window.innerWidth, window.innerHeight);
     
     container.appendChild(fbRenderer.domElement);
@@ -113,15 +140,49 @@ function fbInit(){
     ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
     ctx.drawImage(renderer.domElement,0,0, window.innerWidth, window.innerHeight);
     fbTexture = new THREE.Texture(canv);
-    // fbTexture = new THREE.Texture(renderer.domElement);
-    
-    fbShaders = [blurShader, reposShader, diffShader, colorShader, sharpenShader];
-    // fbShaders = [blurShader, sharpenShader, diffShader, reposShader, sharpenShader];
-    // fbShaders = [blurShader, reposShader, diffShader, reposShader, sharpenShader];
+    fbTexture2 = THREE.ImageUtils.loadTexture("tex/2.jpg");
+    // var clone = rtt.clone();
+    // fbTexture2 = THREE;
+
+    var customShaders = new CustomShaders();
+    var customShaders2 = new CustomShaders();
+
+    fbShaders = [ 
+        // customShaders.blurShader, 
+        // customShaders.reposShader, 
+        // customShaders.diffShader, 
+        // customShaders.colorShader, 
+        // customShaders.sharpenShader,
+        // customShaders.alphaShader
+        customShaders.blurShader, 
+        customShaders.reposShader, 
+        customShaders.diffShader, 
+        customShaders.passThroughShader, 
+        customShaders.sharpenShader,
+        customShaders.alphaShader
+    ];
+
+    fbShaders2 = [
+        customShaders2.blurShader, 
+        customShaders2.reposShader, 
+        customShaders2.diffShader, 
+        customShaders2.reposShader, 
+        customShaders2.sharpenShader,
+        customShaders2.alphaShader
+    ];
 
     fbMaterial = new FeedbackMaterial(fbRenderer, fbScene, fbCamera, fbTexture, fbShaders);
-    
+    fbMaterial2 = new FeedbackMaterial(fbRenderer, fbScene, fbCamera, fbTexture2, fbShaders2);
+        
     fbMaterial.init();
+    fbMaterial2.init();
+
+    fbMaterial2.mesh.position.z = 100;
+    // fbMaterial2.mesh.geometry = new THREE.SphereGeometry(500,100,100);
+    // fbMaterial2.mesh.rotation.x = Math.PI/4;
+    // fbMaterial2.mesh.rotation.y = Math.PI/4;
+    // fbMaterial2.mesh.rotation.x = Math.PI/4;
+
 
     document.addEventListener( 'keydown', function(){screenshot(fbRenderer)}, false );
     document.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -137,6 +198,7 @@ function onDocumentMouseMove( event ) {
     
     for(var i = 0; i < fbMaterial.fbos.length; i++){
       fbMaterial.fbos[i].material.uniforms.mouse.value = new THREE.Vector2(mouseX, mouseY);
+      fbMaterial2.fbos[i].material.uniforms.mouse.value = new THREE.Vector2(-mouseX, -mouseY);
     }
     
 }
@@ -157,12 +219,20 @@ function fbDraw(){
     ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
     ctx.drawImage(renderer.domElement, 0, 0, window.innerWidth, window.innerHeight);
 
+    // fbMaterial2.fbo1.material.uniforms["texture"].value = rtt.clone();
+
     fbTexture.needsUpdate = true;
+    fbTexture2.needsUpdate = true;
         
     fbMaterial.update();
-    fbRenderer.render(fbScene, fbCamera);
-    // fbMaterial.expand();
+    fbMaterial2.update();
+
+    fbRenderer.render(fbScene, fbCamera2);
+
     fbMaterial.getNewFrame();
+    fbMaterial2.getNewFrame();
+
     fbMaterial.swapBuffers();
+    fbMaterial2.swapBuffers();
     
 }

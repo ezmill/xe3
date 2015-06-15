@@ -28,7 +28,7 @@ function GradientMesh(SCENE, WIDTH, HEIGHT){
 			loadModel.call(this, this.model, this.material);
 		} else {
 			// this.geometry = new THREE.PlaneBufferGeometry(window.innerWidth/75,window.innerHeight/75, Math.floor(Math.random()*10));
-			this.geometry = new THREE.IcosahedronGeometry(20,2);
+			this.geometry = new THREE.IcosahedronGeometry(20,1);
 			// this.geometry = new THREE.SphereGeometry(100,100,100);
 			// this.geometry = new THREE.DodecahedronGeometry(20,1)
 			// this.geometry = new THREE.BoxGeometry(100,100,100,Math.floor(Math.random()*10),Math.floor(Math.random()*10),Math.floor(Math.random()*10));

@@ -11,6 +11,8 @@ function FeedbackMaterial(RENDERER, SCENE, CAMERA, TEXTURE, SHADERS){
     this.shader3 = SHADERS[2];
     this.shader4 = SHADERS[3];
     this.shader5 = SHADERS[4];
+    this.shader = SHADERS[5]
+
     this.mesh;
     
     //this.geometry = new THREE.PlaneBufferGeometry(window.innerWidth, window.innerHeight);
@@ -45,8 +47,6 @@ function FeedbackMaterial(RENDERER, SCENE, CAMERA, TEXTURE, SHADERS){
         for(var i = 0; i < this.fbos.length; i++){
           this.fbos[i].material.uniforms.resolution.value = new THREE.Vector2(window.innerWidth, window.innerHeight);
         }
-
-        this.geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 0);
         
         this.fbo1.material.uniforms.texture.value = this.frameDiff.renderTarget; 
 
@@ -54,17 +54,20 @@ function FeedbackMaterial(RENDERER, SCENE, CAMERA, TEXTURE, SHADERS){
         //     color: 0xffffff,
         //     map: this.fbo4.renderTarget
         // });
-        var shader = alphaShader;
+        // var shader = alphaShader;
         this.material = new THREE.ShaderMaterial({
-            uniforms: shader.uniforms,
-            vertexShader: shader.vertexShader,
-            fragmentShader: shader.fragmentShader,
-            transparent: true
+            uniforms: this.shader.uniforms,
+            vertexShader: this.shader.vertexShader,
+            fragmentShader: this.shader.fragmentShader,
+            transparent: true,
+            side: 2
         });
         this.material.uniforms["texture"].value = this.fbo4.renderTarget;
         
-        this.material.depthTest = false;
-        this.material.depthWrite = false;
+        // this.material.depthTest = false;
+        // this.material.depthWrite = false;
+        this.geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 0);
+        // this.geometry = new THREE.BoxGeometry(1000,1000,1000);
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.position.set(0,0,0);
@@ -73,7 +76,7 @@ function FeedbackMaterial(RENDERER, SCENE, CAMERA, TEXTURE, SHADERS){
         var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(1500,1500), new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture("tex/2.jpg")}));
         // var mesh = new THREE.Mesh(this.geometry, new THREE.MeshBasicMaterial({color:0xffffff}));
         mesh.position.z = -100;
-        this.scene.add(mesh);
+        // this.scene.add(mesh);
         // this.mesh.position.z = -100;  
     }
 
