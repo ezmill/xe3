@@ -66,11 +66,14 @@ function FeedbackMaterial(RENDERER, SCENE, CAMERA, TEXTURE, SHADERS){
         
         // this.material.depthTest = false;
         // this.material.depthWrite = false;
+        // this.geometry = new THREE.PlaneGeometry(637, 840, 0);
+        // this.geometry = new THREE.PlaneGeometry(3864/3,2579/3, 0);
         this.geometry = new THREE.PlaneGeometry(window.innerWidth, window.innerHeight, 0);
         // this.geometry = new THREE.BoxGeometry(1000,1000,1000);
 
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.position.set(0,0,0);
+        // this.mesh.rotation.set(0,0,Math.PI/2);
         this.scene.add(this.mesh);      
 
         var mesh = new THREE.Mesh(new THREE.PlaneBufferGeometry(1500,1500), new THREE.MeshBasicMaterial({map: THREE.ImageUtils.loadTexture("tex/2.jpg")}));
@@ -93,7 +96,7 @@ function FeedbackMaterial(RENDERER, SCENE, CAMERA, TEXTURE, SHADERS){
         this.fbo4.render(this.renderer, this.camera);
     }
     this.expand = function(){
-        this.frameDiff.scale(1.01,1.01,1.01);
+        this.frameDiff.mesh.scale.set(1.01,1.01,1.01);
     }
     this.getNewFrame = function(){
         this.fbo1.render(this.renderer, this.camera);

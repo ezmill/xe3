@@ -28,12 +28,12 @@ function init() {
     rtt = new THREE.WebGLRenderTarget(window.innerWidth, window.innerHeight);
     rtt.minFilter = rtt.magFilter = THREE.NearestFilter;
 
-    // controls = new THREE.OrbitControls(camera);
+    controls = new THREE.OrbitControls(camera);
     
     scene = new THREE.Scene();
 
-    renderer = new THREE.WebGLRenderer( {preserveDrawingBuffer: true, antialias: true} );
-    renderer.setClearColor(0xffffff, 1.0)
+    renderer = new THREE.WebGLRenderer( {preserveDrawingBuffer: true, antialias: true, alpha: true} );
+    renderer.setClearColor(0xffffff, 0.0)
     renderer.setSize( window.innerWidth, window.innerHeight );
     
     renderer.gammaInput = true;
@@ -51,13 +51,13 @@ function init() {
             meshes.push(gMesh);
         }
 
-        for(var i = 0; i < 5; i++){
-            var gMesh = new GradientMesh(scene, window.innerWidth, window.innerHeight);
-            gMesh.init(i);
-            gMesh.mesh.position.y = 40;
-            // gMesh.mesh.position.x = j*100;
-            meshes.push(gMesh);
-        }
+        // for(var i = 0; i < 1; i++){
+        //     var gMesh = new GradientMesh(scene, window.innerWidth, window.innerHeight);
+        //     gMesh.init(i);
+        //     gMesh.mesh.position.y = 40;
+        //     // gMesh.mesh.position.x = j*100;
+        //     meshes.push(gMesh);
+        // }
     // }
 
 
@@ -89,9 +89,9 @@ function animate(){
     draw();
 }
 function draw(){
-    // camera.setLens(10)
-    time+=0.01;
-    // rtt.needsUpdate = true;
+    // // camera.setLens(10)
+    // time+=0.01;
+    // // rtt.needsUpdate = true;
     // for(var j = 0; j<4; j++){
         // for(var k = 0; k<4; k++){
             for(var i = 0; i < meshes.length; i++){
@@ -103,8 +103,8 @@ function draw(){
             }
         // }
     // }
-    // renderer.render(scene, camera2, rtt);
-    // renderer.render(scene, camera);
+    // // renderer.render(scene, camera2, rtt);
+    // // renderer.render(scene, camera);
 
     composer2.render();
     composer.render();
@@ -120,11 +120,11 @@ function fbInit(){
     fbCamera2 = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.01, 100000);
     fbCamera2.position.z = 750;
 
-    controls = new THREE.OrbitControls(fbCamera2);
+    // controls = new THREE.OrbitControls(fbCamera2);
 
 
-    fbRenderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true});
-    fbRenderer.setClearColor(0xffffff);
+    fbRenderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true, alpha: true});
+    fbRenderer.setClearColor(0xffffff, 0.0);
     fbRenderer.setSize(window.innerWidth, window.innerHeight);
     
     container.appendChild(fbRenderer.domElement);
@@ -140,44 +140,40 @@ function fbInit(){
     ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
     ctx.drawImage(renderer.domElement,0,0, window.innerWidth, window.innerHeight);
     fbTexture = new THREE.Texture(canv);
-    fbTexture2 = THREE.ImageUtils.loadTexture("tex/2.jpg");
+    // fbTexture = THREE.ImageUtils.loadTexture("tex/sandals.jpg")
+    // fbTexture2 = THREE.ImageUtils.loadTexture("tex/2.jpg");
     // var clone = rtt.clone();
-    // fbTexture2 = THREE;
+    // fbTexture2 = rtt;
 
     var customShaders = new CustomShaders();
     var customShaders2 = new CustomShaders();
 
     fbShaders = [ 
-        // customShaders.blurShader, 
-        // customShaders.reposShader, 
-        // customShaders.diffShader, 
-        // customShaders.colorShader, 
-        // customShaders.sharpenShader,
-        // customShaders.alphaShader
         customShaders.blurShader, 
         customShaders.reposShader, 
-        customShaders.diffShader, 
-        customShaders.passThroughShader, 
+        customShaders.diffShader2, 
+        customShaders.colorShader, 
         customShaders.sharpenShader,
-        customShaders.alphaShader
+        customShaders.passShader
     ];
 
-    fbShaders2 = [
-        customShaders2.blurShader, 
-        customShaders2.reposShader, 
-        customShaders2.diffShader, 
-        customShaders2.reposShader, 
-        customShaders2.sharpenShader,
-        customShaders2.alphaShader
-    ];
+    // fbShaders = [ 
+    //     customShaders.blurShader, 
+    //     customShaders.flowShader, 
+    //     customShaders.diffShader, 
+    //     customShaders.reposShader, 
+    //     customShaders.sharpenShader,
+    //     customShaders.passShader
+    // ];
 
     fbMaterial = new FeedbackMaterial(fbRenderer, fbScene, fbCamera, fbTexture, fbShaders);
-    fbMaterial2 = new FeedbackMaterial(fbRenderer, fbScene, fbCamera, fbTexture2, fbShaders2);
+    // fbMaterial2 = new FeedbackMaterial(fbRenderer, fbScene, fbCamera, fbTexture2, fbShaders2);
         
     fbMaterial.init();
-    fbMaterial2.init();
+    // fbMaterial2.init();
 
-    fbMaterial2.mesh.position.z = 100;
+    // fbMaterial.mesh.visible = false;
+    // fbMaterial2.mesh.position.z = -100;
     // fbMaterial2.mesh.geometry = new THREE.SphereGeometry(500,100,100);
     // fbMaterial2.mesh.rotation.x = Math.PI/4;
     // fbMaterial2.mesh.rotation.y = Math.PI/4;
@@ -198,7 +194,7 @@ function onDocumentMouseMove( event ) {
     
     for(var i = 0; i < fbMaterial.fbos.length; i++){
       fbMaterial.fbos[i].material.uniforms.mouse.value = new THREE.Vector2(mouseX, mouseY);
-      fbMaterial2.fbos[i].material.uniforms.mouse.value = new THREE.Vector2(-mouseX, -mouseY);
+      // fbMaterial2.fbos[i].material.uniforms.mouse.value = new THREE.Vector2(-mouseX, -mouseY);
     }
     
 }
@@ -215,24 +211,24 @@ function onDocumentMouseDown( event ) {
 }
 function fbDraw(){
     
-    ctx.fillStyle = "green";
+    ctx.fillStyle = "white";
     ctx.fillRect(0,0,window.innerWidth, window.innerHeight);
     ctx.drawImage(renderer.domElement, 0, 0, window.innerWidth, window.innerHeight);
 
-    // fbMaterial2.fbo1.material.uniforms["texture"].value = rtt.clone();
-
+    // fbMaterial2.fbo1.material.uniforms.texture.value = rtt;
     fbTexture.needsUpdate = true;
-    fbTexture2.needsUpdate = true;
+    // fbTexture2.needsUpdate = true;
         
     fbMaterial.update();
-    fbMaterial2.update();
+    fbMaterial.expand();
+    // fbMaterial2.update();
 
-    fbRenderer.render(fbScene, fbCamera2);
+    fbRenderer.render(fbScene, fbCamera);
 
     fbMaterial.getNewFrame();
-    fbMaterial2.getNewFrame();
+    // fbMaterial2.getNewFrame();
 
     fbMaterial.swapBuffers();
-    fbMaterial2.swapBuffers();
+    // fbMaterial2.swapBuffers();
     
 }

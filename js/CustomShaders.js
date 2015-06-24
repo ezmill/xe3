@@ -28,7 +28,12 @@ var CustomShaders = function(){
 			"varying vec2 vUv;",
 
 			"void main() {",
-			"    gl_FragColor = texture2D(texture, vUv);",
+			"	vec4 color = texture2D(texture, vUv);",
+			"	if(color.a>0.0){",
+			"   	gl_FragColor = vec4(color.rgb, color.a);",
+			"   } else {",
+			"   	discard;",
+			"   }",
 			"}"
 		
 		].join("\n")
@@ -202,8 +207,8 @@ var CustomShaders = function(){
 			"varying vec2 vUv;",
 
 			"void main() {",
-			"  float step_w = 1.0/resolution.x;",
-			"  float step_h = 1.0/resolution.y;",
+			"  float step_w = 10.0/resolution.x;",
+			"  float step_h = 10.0/resolution.y;",
 			"  vec2 tc = vUv;",
 			"  vec4 input0 = texture2D(texture,tc);",
 			"   ",
@@ -255,8 +260,8 @@ var CustomShaders = function(){
 			"vec2 offset[9];",
 
 			"void main() {",
-			"	float step_w = 1.0/resolution.x;",
-			"	float step_h = 1.0/resolution.y;",
+			"	float step_w = 0.1/resolution.x;",
+			"	float step_h = 0.1/resolution.y;",
 			"	vec2 tc = vUv;",
 			"	vec4 input0 = texture2D(texture,tc);",
 			"	kernel[0] = -1.0; kernel[1] = -1.0; kernel[2] = -1.0;",
@@ -414,7 +419,7 @@ var CustomShaders = function(){
 			"    vec2 tc = vUv;",
 			"    vec4 look = texture2D(texture,tc);",
 			// "    vec2 offs = vec2(look.y-look.x,look.w-look.z)*0.001;",
-			"    vec2 offs = vec2(look.y-look.x,look.w-look.z)*vec2(mouse.x/50.0, mouse.y/50.0);",
+			"    vec2 offs = vec2(look.y-look.x,look.w-look.z)*vec2(mouse.x/10.0, mouse.y/10.0);",
 			"    vec2 coord = offs+tc;",
 			"    vec4 repos = texture2D(texture, coord);",
 			// "    repos*=1.5;",
@@ -454,14 +459,14 @@ var CustomShaders = function(){
 
 	        "void main() {",
 	      
-	        "    float avg = dot(texture2D(texture, vUv).r, 1.0)/3.0;",
-	        "    if(texture2D(texture, vUv).r > 0.1){",
-	        // "    if(avg > 0.1){",
+	        "    float avg = dot(texture2D(texture, vUv).rgb, vec3(1.0))/3.0;",
+	        // "    if(texture2D(texture, vUv).rgb > 0.1){",
+	        "    if(avg > 0.5){",
 	        "      gl_FragColor = vec4(texture2D(texture, vUv).rgb, texture2D(texture, vUv).a);",
 	        "    }",
 	        "    else {",
 	        "      discard;",
-	        // "      gl_FragColor = vec4(texture2D(texture, vUv).rgb, avg + 0.25);",
+	        // "      gl_FragColor = vec4(texture2D(texture, vUv).rgb, avg);",
 	        "    }",
 	        "    ",
 			"}"
